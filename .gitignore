@@ -1,0 +1,18 @@
+# IDE
+.idea/
+*.iml
+
+# Gradle and Kotlin
+.gradle/
+.kotlin/
+build/
+out/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+local.properties
+
+# macOS
+.DS_Store
