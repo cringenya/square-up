@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 group = "squareup"
@@ -21,4 +22,9 @@ kotlin {
 dependencies {
     implementation(project(":application"))
     implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.server.status.pages)
+    implementation(libs.ktor.server.sessions)
+    implementation(libs.ktor.server.swagger)
 }

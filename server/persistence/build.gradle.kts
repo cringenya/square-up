@@ -20,4 +20,17 @@ kotlin {
 
 dependencies {
     implementation(project(":application"))
+    implementation(libs.postgresql)
+    implementation(libs.flyway.core)
+    implementation(libs.flyway.postgresql)
+    implementation(libs.hikari)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.embedded.postgres)
+    testRuntimeOnly(libs.junit.engine)
+    testRuntimeOnly(libs.junit.launcher)
+    testRuntimeOnly(libs.logback)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

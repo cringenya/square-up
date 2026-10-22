@@ -21,4 +21,11 @@ kotlin {
 
 dependencies {
     api(project(":domain"))
+    testImplementation(libs.kotlin.test)
+    testRuntimeOnly(libs.junit.engine)
+    testRuntimeOnly(libs.junit.launcher)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

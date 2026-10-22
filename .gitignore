@@ -1,5 +1,7 @@
 # IDE
 .idea/
+.fleet/
+.vscode/
 *.iml
 
 # Gradle and Kotlin
@@ -13,6 +15,16 @@ out/
 .env.*
 !.env.example
 local.properties
+.direnv/
+.envrc
+http-client.private.env.json
+http-client.cookies
+logs/
+tmp/
+temp/
+heapdumps/
 
 # macOS
 .DS_Store
+.AppleDouble/
+.LSOverride
