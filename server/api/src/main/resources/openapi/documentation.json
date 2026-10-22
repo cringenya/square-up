@@ -1,0 +1,2402 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Сочтёмся: HTTP API",
+    "version": "1.0.0",
+    "description": "HTTP API проекта «Сочтёмся». Для входа выполните POST /square-up/auth/login. Браузер автоматически передаёт cookie при следующих запросах к этому серверу."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Вход"
+    },
+    {
+      "name": "User"
+    },
+    {
+      "name": "Participant"
+    },
+    {
+      "name": "Event"
+    },
+    {
+      "name": "Состав Event"
+    },
+    {
+      "name": "Expense"
+    },
+    {
+      "name": "Расчёт"
+    },
+    {
+      "name": "Состояние"
+    }
+  ],
+  "security": [
+    {
+      "cookieSession": []
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "tags": [
+          "Состояние"
+        ],
+        "summary": "Проверить готовность",
+        "description": "Проверяет подключение к PostgreSQL. При недоступной базе возвращает 503.\n\nДоступ: Без входа.",
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "description": "База недоступна",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/square-up/auth/login": {
+      "post": {
+        "operationId": "login",
+        "tags": [
+          "Вход"
+        ],
+        "summary": "Войти",
+        "description": "Введите логин и пароль из своей конфигурации. Браузер сохранит HttpOnly cookie и будет отправлять её автоматически. Повторный вход переключает аккаунт.\n\nДоступ: Без входа.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/UserResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "login": "admin",
+                "password": ""
+              }
+            }
+          }
+        }
+      }
+    },
+    "/square-up/auth/register": {
+      "post": {
+        "operationId": "register",
+        "tags": [
+          "Вход"
+        ],
+        "summary": "Зарегистрироваться",
+        "description": "Укажите UUID существующего Participant без User. Регистрация не выполняет вход автоматически.\n\nДоступ: Без входа.",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/UserResponse201"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              },
+              "example": {
+                "participantId": "00000000-0000-0000-0000-000000000001",
+                "email": "anna@example.local",
+                "login": "anna",
+                "password": ""
+              }
+            }
+          }
+        }
+      }
+    },
+    "/square-up/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "tags": [
+          "Вход"
+        ],
+        "summary": "Выйти",
+        "description": "Завершает текущую сессию и очищает cookie.\n\nДоступ: Любой посетитель.",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent204"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "security": []
+      }
+    },
+    "/square-up/users/me": {
+      "get": {
+        "operationId": "currentUser",
+        "tags": [
+          "User"
+        ],
+        "summary": "Получить свой User",
+        "description": "Получить свой User. Доступ: Вошедший User.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/UserResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/square-up/users": {
+      "get": {
+        "operationId": "listUsers",
+        "tags": [
+          "User"
+        ],
+        "summary": "Все аккаунты",
+        "description": "Все аккаунты. Доступ: ADMIN.",
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createUser",
+        "tags": [
+          "User"
+        ],
+        "summary": "Создать User",
+        "description": "Создать User. Доступ: ADMIN.",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/UserResponse201"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              },
+              "example": {
+                "participantId": "00000000-0000-0000-0000-000000000001",
+                "email": "user@example.local",
+                "login": "new-user",
+                "password": "",
+                "role": "USER"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/square-up/users/{userId}": {
+      "get": {
+        "operationId": "getUser",
+        "tags": [
+          "User"
+        ],
+        "summary": "Получить User",
+        "description": "Получить User. Доступ: Сам User или ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/UserResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updateUser",
+        "tags": [
+          "User"
+        ],
+        "summary": "Изменить User",
+        "description": "Передайте изменяемые поля. Смена пароля отзывает все сессии User; после неё нужно войти заново.\n\nДоступ: Сам User или ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/UserResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              },
+              "example": {
+                "firstName": "Аня"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteUser",
+        "tags": [
+          "User"
+        ],
+        "summary": "Удалить User",
+        "description": "Сохраняет Participant и историю. Нельзя удалить последнего ADMIN или нарушить зарегистрированное участие в Event и Expense.\n\nДоступ: ADMIN.",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent204"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ]
+      }
+    },
+    "/square-up/users/{userId}/role": {
+      "patch": {
+        "operationId": "changeRole",
+        "tags": [
+          "User"
+        ],
+        "summary": "Изменить роль",
+        "description": "Последнего ADMIN нельзя понизить. Изменение роли отзывает сессии этого User.\n\nДоступ: ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/UserResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleRequest"
+              },
+              "example": {
+                "role": "USER"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/square-up/participants": {
+      "get": {
+        "operationId": "listParticipants",
+        "tags": [
+          "Participant"
+        ],
+        "summary": "Все профили",
+        "description": "Все профили. Доступ: ADMIN.",
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ParticipantResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createParticipant",
+        "tags": [
+          "Participant"
+        ],
+        "summary": "Создать свободного Participant",
+        "description": "Создаёт профиль без User. Его UUID можно использовать при регистрации.\n\nДоступ: ADMIN.",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/ParticipantResponse201"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateParticipantRequest"
+              },
+              "example": {
+                "firstName": "Анна",
+                "lastName": "Иванова"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/square-up/participants/{participantId}": {
+      "get": {
+        "operationId": "getParticipant",
+        "tags": [
+          "Participant"
+        ],
+        "summary": "Получить Participant",
+        "description": "Получить Participant. Доступ: Связанный User или ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ParticipantResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/participantId"
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updateParticipant",
+        "tags": [
+          "Participant"
+        ],
+        "summary": "Изменить имя и фамилию",
+        "description": "Изменить имя и фамилию. Доступ: Связанный User или ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ParticipantResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/participantId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParticipantRequest"
+              },
+              "example": {
+                "firstName": "Аня"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteParticipant",
+        "tags": [
+          "Participant"
+        ],
+        "summary": "Удалить Participant",
+        "description": "Удаление возможно только при отсутствии связей с User, Event и Expense.\n\nДоступ: ADMIN.",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent204"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/participantId"
+          }
+        ]
+      }
+    },
+    "/square-up/participants/{participantId}/expenses": {
+      "get": {
+        "operationId": "participantExpenses",
+        "tags": [
+          "Participant"
+        ],
+        "summary": "Расходы Participant",
+        "description": "Включает роль автора, плательщика и должника.\n\nДоступ: Связанный User или ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ExpenseList200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/participantId"
+          }
+        ]
+      }
+    },
+    "/square-up/events": {
+      "get": {
+        "operationId": "listEvents",
+        "tags": [
+          "Event"
+        ],
+        "summary": "Доступные события",
+        "description": "User получает свои события, включая прежние; ADMIN получает все.\n\nДоступ: Вошедший User.",
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createEvent",
+        "tags": [
+          "Event"
+        ],
+        "summary": "Создать событие",
+        "description": "Обычный User включается автоматически. ADMIN должен передать состав с хотя бы одним зарегистрированным Participant; собственное участие ADMIN необязательно.\n\nДоступ: Вошедший User.",
+        "responses": {
+          "201": {
+            "description": "Объект создан",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEventRequest"
+              },
+              "example": {
+                "name": "Поездка",
+                "participantIds": [
+                  "00000000-0000-0000-0000-000000000001"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/square-up/events/{eventId}": {
+      "get": {
+        "operationId": "getEvent",
+        "tags": [
+          "Event"
+        ],
+        "summary": "Получить событие",
+        "description": "Получить событие. Доступ: Текущий или бывший участник, ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/EventResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/eventId"
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updateEvent",
+        "tags": [
+          "Event"
+        ],
+        "summary": "Изменить название события",
+        "description": "Изменить название события. Доступ: Текущий участник или ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/EventResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/eventId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventRequest"
+              },
+              "example": {
+                "name": "Выходные"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteEvent",
+        "tags": [
+          "Event"
+        ],
+        "summary": "Удалить событие",
+        "description": "В Event не должно быть расходов.\n\nДоступ: Текущий участник или ADMIN.",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent204"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/eventId"
+          }
+        ]
+      }
+    },
+    "/square-up/events/{eventId}/participants": {
+      "get": {
+        "operationId": "eventParticipants",
+        "tags": [
+          "Состав Event"
+        ],
+        "summary": "Текущий состав",
+        "description": "Текущий состав. Доступ: Просмотр Event.",
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventParticipantResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/eventId"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createEventParticipant",
+        "tags": [
+          "Состав Event"
+        ],
+        "summary": "Создать Participant в событии",
+        "description": "Создаёт профиль без User и сразу включает его в Event.\n\nДоступ: Текущий участник или ADMIN.",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/ParticipantResponse201"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/eventId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateParticipantRequest"
+              },
+              "example": {
+                "firstName": "Павел",
+                "lastName": "Петров"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/square-up/events/{eventId}/participants/{participantId}": {
+      "put": {
+        "operationId": "addEventParticipant",
+        "tags": [
+          "Состав Event"
+        ],
+        "summary": "Добавить существующего Participant",
+        "description": "Повторное добавление сохраняет прежний состав. Тело запроса не требуется.\n\nДоступ: Текущий участник или ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/EventResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/eventId"
+          },
+          {
+            "$ref": "#/components/parameters/participantId"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "removeEventParticipant",
+        "tags": [
+          "Состав Event"
+        ],
+        "summary": "Исключить Participant",
+        "description": "История и прежние расходы сохраняются. Последнего зарегистрированного Participant исключить нельзя.\n\nДоступ: Текущий участник или ADMIN.",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent204"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/eventId"
+          },
+          {
+            "$ref": "#/components/parameters/participantId"
+          }
+        ]
+      }
+    },
+    "/square-up/events/{eventId}/expenses": {
+      "get": {
+        "operationId": "eventExpenses",
+        "tags": [
+          "Expense"
+        ],
+        "summary": "Расходы события",
+        "description": "Расходы события. Доступ: Просмотр Event.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ExpenseList200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/eventId"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createExpense",
+        "tags": [
+          "Expense"
+        ],
+        "summary": "Добавить расход",
+        "description": "Деньги в целых копейках. Плательщик и должники должны входить в Event. Автор определяется по текущему User; ADMIN может быть автором вне состава.\n\nДоступ: Текущий участник или ADMIN.",
+        "responses": {
+          "201": {
+            "description": "Объект создан",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/eventId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExpenseRequest"
+              },
+              "example": {
+                "name": "Ужин",
+                "amountKopecks": 101,
+                "payerId": "00000000-0000-0000-0000-000000000001",
+                "debtorIds": [
+                  "00000000-0000-0000-0000-000000000001",
+                  "00000000-0000-0000-0000-000000000002"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/square-up/events/{eventId}/calculation": {
+      "get": {
+        "operationId": "calculation",
+        "tags": [
+          "Расчёт"
+        ],
+        "summary": "Балансы и переводы",
+        "description": "Учитывает все расходы и вышедших участников. Положительный netKopecks означает получение денег, отрицательный означает долг. Просмотр ничего не фиксирует.\n\nДоступ: Просмотр Event.",
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/eventId"
+          }
+        ]
+      }
+    },
+    "/square-up/expenses": {
+      "get": {
+        "operationId": "listExpenses",
+        "tags": [
+          "Expense"
+        ],
+        "summary": "Все расходы",
+        "description": "Все расходы. Доступ: ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ExpenseList200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/square-up/expenses/{expenseId}": {
+      "get": {
+        "operationId": "getExpense",
+        "tags": [
+          "Expense"
+        ],
+        "summary": "Получить расход",
+        "description": "Получить расход. Доступ: Просмотр Event, участие в Expense или ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ExpenseResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/expenseId"
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updateExpense",
+        "tags": [
+          "Expense"
+        ],
+        "summary": "Изменить расход",
+        "description": "Поля необязательны. debtorIds полностью заменяет набор должников. Автор и Event неизменны. Смена названия или плательщика сохраняет доли; сумма и состав должников запускают пересчёт.\n\nДоступ: Текущий участник Event или ADMIN.",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ExpenseResponse200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/expenseId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExpenseRequest"
+              },
+              "example": {
+                "name": "Общий ужин"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteExpense",
+        "tags": [
+          "Expense"
+        ],
+        "summary": "Удалить расход",
+        "description": "Полностью удаляет расход и его UUID из истории участников.\n\nДоступ: Текущий участник Event или ADMIN.",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent204"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/expenseId"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "squareup_session",
+        "description": "Выполните POST /square-up/auth/login. Cookie HttpOnly установит сервер; вручную вводить её не требуется."
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string",
+            "minLength": 1,
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 15,
+            "maxLength": 128,
+            "example": ""
+          }
+        },
+        "required": [
+          "login",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "participantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "anna@example.local"
+          },
+          "login": {
+            "type": "string",
+            "minLength": 1,
+            "example": "anna"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 15,
+            "maxLength": 128,
+            "example": ""
+          }
+        },
+        "required": [
+          "participantId",
+          "email",
+          "login",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "CreateUserRequest": {
+        "type": "object",
+        "properties": {
+          "participantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.local"
+          },
+          "login": {
+            "type": "string",
+            "minLength": 1,
+            "example": "new-user"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 15,
+            "maxLength": 128,
+            "example": ""
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "ADMIN"
+            ],
+            "default": "USER"
+          }
+        },
+        "required": [
+          "participantId",
+          "email",
+          "login",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateUserRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": true
+          },
+          "login": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 15,
+            "maxLength": 128,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RoleRequest": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "ADMIN"
+            ]
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "participantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "firstName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "login": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "ADMIN"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "participantId",
+          "firstName",
+          "lastName",
+          "email",
+          "login",
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "CreateParticipantRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Анна"
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Иванова"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateParticipantRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ParticipantResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "firstName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001",
+            "nullable": true
+          },
+          "eventIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "example": "00000000-0000-0000-0000-000000000001"
+            }
+          },
+          "expenseIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "example": "00000000-0000-0000-0000-000000000001"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "userId",
+          "eventIds",
+          "expenseIds"
+        ],
+        "additionalProperties": false
+      },
+      "EventParticipantResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "firstName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "registered": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "registered"
+        ],
+        "additionalProperties": false
+      },
+      "CreateEventRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Поездка"
+          },
+          "participantIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "example": "00000000-0000-0000-0000-000000000001"
+            },
+            "uniqueItems": true,
+            "default": []
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateEventRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Выходные"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "EventResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "participantIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "example": "00000000-0000-0000-0000-000000000001"
+            }
+          },
+          "expenseIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "example": "00000000-0000-0000-0000-000000000001"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "participantIds",
+          "expenseIds"
+        ],
+        "additionalProperties": false
+      },
+      "CreateExpenseRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Ужин"
+          },
+          "amountKopecks": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "example": 101
+          },
+          "payerId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "debtorIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "example": "00000000-0000-0000-0000-000000000001"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "name",
+          "amountKopecks",
+          "payerId",
+          "debtorIds"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateExpenseRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": true
+          },
+          "amountKopecks": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "nullable": true
+          },
+          "payerId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001",
+            "nullable": true
+          },
+          "debtorIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "example": "00000000-0000-0000-0000-000000000001"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExpenseResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "eventId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "amountKopecks": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "payerId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "authorId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "shares": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "name",
+          "amountKopecks",
+          "payerId",
+          "authorId",
+          "shares"
+        ],
+        "additionalProperties": false
+      },
+      "BalanceResponse": {
+        "type": "object",
+        "properties": {
+          "participantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "paidKopecks": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "shareKopecks": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "netKopecks": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "participantId",
+          "paidKopecks",
+          "shareKopecks",
+          "netKopecks"
+        ],
+        "additionalProperties": false
+      },
+      "TransferResponse": {
+        "type": "object",
+        "properties": {
+          "fromParticipantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "toParticipantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "amountKopecks": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "fromParticipantId",
+          "toParticipantId",
+          "amountKopecks"
+        ],
+        "additionalProperties": false
+      },
+      "CalculationResponse": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "00000000-0000-0000-0000-000000000001"
+          },
+          "balances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BalanceResponse"
+            }
+          },
+          "transfers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransferResponse"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "balances",
+          "transfers"
+        ],
+        "additionalProperties": false
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "additionalProperties": false
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "UP"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "responses": {
+      "Error400": {
+        "description": "Неверные данные",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Error401": {
+        "description": "Нужен вход",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Error403": {
+        "description": "Недостаточно прав",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Error404": {
+        "description": "Объект не найден",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Error409": {
+        "description": "Конфликт или нарушение ограничения",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Error415": {
+        "description": "Требуется JSON",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Error500": {
+        "description": "Ошибка сервера",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "UserResponse200": {
+        "description": "Успешный ответ",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UserResponse"
+            }
+          }
+        }
+      },
+      "UserResponse201": {
+        "description": "Объект создан",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UserResponse"
+            }
+          }
+        }
+      },
+      "NoContent204": {
+        "description": "Операция выполнена"
+      },
+      "ParticipantResponse201": {
+        "description": "Объект создан",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ParticipantResponse"
+            }
+          }
+        }
+      },
+      "ParticipantResponse200": {
+        "description": "Успешный ответ",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ParticipantResponse"
+            }
+          }
+        }
+      },
+      "ExpenseList200": {
+        "description": "Успешный ответ",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ExpenseResponse"
+              }
+            }
+          }
+        }
+      },
+      "EventResponse200": {
+        "description": "Успешный ответ",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EventResponse"
+            }
+          }
+        }
+      },
+      "ExpenseResponse200": {
+        "description": "Успешный ответ",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ExpenseResponse"
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "userId": {
+        "name": "userId",
+        "in": "path",
+        "required": true,
+        "description": "UUID userId",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "example": "00000000-0000-0000-0000-000000000001"
+        }
+      },
+      "participantId": {
+        "name": "participantId",
+        "in": "path",
+        "required": true,
+        "description": "UUID participantId",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "example": "00000000-0000-0000-0000-000000000001"
+        }
+      },
+      "eventId": {
+        "name": "eventId",
+        "in": "path",
+        "required": true,
+        "description": "UUID eventId",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "example": "00000000-0000-0000-0000-000000000001"
+        }
+      },
+      "expenseId": {
+        "name": "expenseId",
+        "in": "path",
+        "required": true,
+        "description": "UUID expenseId",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "example": "00000000-0000-0000-0000-000000000001"
+        }
+      }
+    }
+  }
+}

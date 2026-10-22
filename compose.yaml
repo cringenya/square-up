@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16.15-bookworm
+    environment:
+      POSTGRES_DB: squareup
+      POSTGRES_USER: ${DB_USER:-squareup}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:15432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER:-squareup}", "-d", "squareup"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+  api:
+    build:
+      context: ./server
+    environment:
+      DB_URL: ${DB_URL:-jdbc:postgresql://db:5432/squareup}
+      DB_USER: ${DB_USER:-squareup}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: ${SERVER_PORT:-8080}
+      SESSION_SECONDS: ${SESSION_SECONDS:-3600}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ADMIN_LOGIN: ${ADMIN_LOGIN:?ADMIN_LOGIN must be set}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL must be set}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set}
+      ADMIN_FIRST_NAME: ${ADMIN_FIRST_NAME:?ADMIN_FIRST_NAME must be set}
+      ADMIN_LAST_NAME: ${ADMIN_LAST_NAME:?ADMIN_LAST_NAME must be set}
+    ports:
+      - "127.0.0.1:${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
+    depends_on:
+      db:
+        condition: service_healthy
+    stop_grace_period: 10s
+volumes:
+  postgres_data:
